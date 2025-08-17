@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:testing/screen/home_screen.dart';
 import 'package:testing/screen/signup_screen.dart';
 
@@ -57,6 +58,43 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    try {
+      // Begin interactive Google Sign-In process
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) {
+        // The user canceled the sign-in
+        return;
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create a new credential
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+      // The StreamBuilder in MyApp will handle the navigation to HomeScreen.
+    } on FirebaseAuthException catch (e) {
+      // Handle Firebase authentication errors
+      _showErrorDialog("Google Sign-In Failed: ${e.message}");
+    } catch (e) {
+      // Handle other unexpected errors
+      _showErrorDialog("An unexpected error occurred: $e");
+    }
+  }
+
   // Helper function to show an error dialog
   void _showErrorDialog(String message) {
     showDialog(
@@ -98,7 +136,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   'Welcome back',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 // Email input field
                 TextFormField(
                   controller: _emailController,
@@ -195,10 +233,10 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 // "Forgot Password?" link
                 Align(
-                  alignment: Alignment.center,
+                  alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () {},
                     child: const Text(
@@ -211,7 +249,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
                 // Sign-in button
                 Align(
                   alignment: Alignment.centerRight,
@@ -229,10 +267,53 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 120),
+                const SizedBox(height: 40),
+                Row(
+                  children: [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text("or"),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // "Sign in with Google" button
+                Center(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _signInWithGoogle,
+                      icon: Image.network(
+                        "https://img.icons8.com/color/48/000000/google-logo.png",
+                        height: 24.0,
+                        width: 24.0,
+                      ),
+                      label: const Text(
+                        'Sign in with Google',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 50),
                 // "New member? Sign up" link
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "New member? ",
