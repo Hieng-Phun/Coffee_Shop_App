@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:testing/screen/home_screen.dart';
 import 'package:testing/screen/signin_screen.dart';
+import 'package:testing/screen/welcome_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -41,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         Navigator.pushReplacement(
           // ignore: use_build_context_synchronously
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
         );
         // The StreamBuilder in MyApp will handle the navigation to HomeScreen.
       } on FirebaseAuthException catch (e) {
@@ -84,7 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
       );
       // The StreamBuilder in MyApp will handle the navigation to HomeScreen.
     } on FirebaseAuthException catch (e) {
