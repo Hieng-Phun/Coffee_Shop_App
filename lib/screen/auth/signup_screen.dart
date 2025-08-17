@@ -1,21 +1,22 @@
-// signin_screen.dart
+// signup_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:testing/screen/signup_screen.dart';
-import 'package:testing/screen/welcome_screen.dart';
+import 'package:testing/screen/auth/signin_screen.dart';
+import 'package:testing/screen/main/welcome_screen.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); // Key for form validation
   bool _isPasswordVisible = false;
 
@@ -23,15 +24,16 @@ class _SignInScreenState extends State<SignInScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _usernameController.dispose();
     super.dispose();
   }
 
-  // Function to handle Firebase sign-in
-  Future<void> _signIn() async {
-    // Validate the form before attempting to sign in
+  // Function to handle Firebase sign-up
+  Future<void> _signUp() async {
+    // Validate the form before attempting to sign up
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
@@ -41,15 +43,14 @@ class _SignInScreenState extends State<SignInScreen> {
           context,
           MaterialPageRoute(builder: (context) => const WelcomeScreen()),
         );
-
         // The StreamBuilder in MyApp will handle the navigation to HomeScreen.
       } on FirebaseAuthException catch (e) {
         // Handle different Firebase errors
-        String message = "An error occurred. Please check your credentials.";
-        if (e.code == 'user-not-found') {
-          message = 'No user found for that email.';
-        } else if (e.code == 'wrong-password') {
-          message = 'Wrong password provided for that user.';
+        String message = "An error occurred. Please try again.";
+        if (e.code == 'weak-password') {
+          message = 'The password provided is too weak.';
+        } else if (e.code == 'email-already-in-use') {
+          message = 'The account already exists for that email.';
         }
         _showErrorDialog(message);
       } catch (e) {
@@ -100,7 +101,7 @@ class _SignInScreenState extends State<SignInScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Authentication Failed'),
+        title: const Text('Sign Up Failed'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
@@ -126,17 +127,56 @@ class _SignInScreenState extends State<SignInScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 80),
+                const SizedBox(height: 70),
                 const Text(
-                  'Sign in',
+                  'Sign up',
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Welcome back',
+                  'Create an account here',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
+                // Username input field
+                TextFormField(
+                  controller: _usernameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a username';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    prefixIcon: Icon(
+                      Icons.person_outline,
+                      color: Color.fromARGB(255, 220, 165, 0),
+                    ),
+                    fillColor: Colors.white,
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors
+                            .grey
+                            .shade300, // Color for the bottom border line
+                        width: 1.5,
+                      ),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
                 // Email input field
                 TextFormField(
                   controller: _emailController,
@@ -153,11 +193,11 @@ class _SignInScreenState extends State<SignInScreen> {
                   },
                   decoration: InputDecoration(
                     labelText: 'Email address',
-                    fillColor: Colors.white,
                     prefixIcon: Icon(
                       Icons.email_outlined,
                       color: Color.fromARGB(255, 220, 165, 0),
                     ),
+                    fillColor: Colors.white,
                     border: UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: Colors
@@ -188,6 +228,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters long';
                     }
                     return null;
                   },
@@ -233,33 +276,23 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                // "Forgot Password?" link
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
+                const SizedBox(height: 10),
+                // Terms of Use text
+                const Text(
+                  'By signing up you agree with our Terms of Use',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 const SizedBox(height: 40),
-                // Sign-in button
+                // Sign-up button
                 Align(
                   alignment: Alignment.centerRight,
                   child: SizedBox(
                     width: 60,
                     height: 60,
                     child: RawMaterialButton(
-                      shape: CircleBorder(),
-                      onPressed: _signIn,
+                      onPressed: _signUp,
                       fillColor: const Color.fromARGB(255, 220, 165, 0),
+                      shape: CircleBorder(),
                       child: const Icon(
                         Icons.arrow_forward,
                         color: Colors.white,
@@ -267,7 +300,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 Row(
                   children: [
                     Expanded(child: Divider()),
@@ -311,12 +344,12 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
                 const SizedBox(height: 50),
-                // "New member? Sign up" link
+                // "Already a member? Sign in" link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "New member? ",
+                      "Already a member? ",
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                     GestureDetector(
@@ -324,12 +357,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SignUpScreen(),
+                            builder: (context) => const SignInScreen(),
                           ),
                         );
                       },
                       child: const Text(
-                        'Sign up',
+                        'Sign in',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,

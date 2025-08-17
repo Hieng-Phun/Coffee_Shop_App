@@ -10,6 +10,9 @@
             android:name="com.google.android.gms.auth.api.web_client_id"
             android:value="@string/default_web_client_id" />
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC9vtlUNfJ3KiNsiyDflhKbA8JV3SZ77gY" />
 
         <activity
             android:name=".MainActivity"

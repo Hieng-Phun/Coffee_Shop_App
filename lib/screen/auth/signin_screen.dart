@@ -1,22 +1,21 @@
-// signup_screen.dart
+// signin_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:testing/screen/signin_screen.dart';
-import 'package:testing/screen/welcome_screen.dart';
+import 'package:testing/screen/auth/signup_screen.dart';
+import 'package:testing/screen/main/welcome_screen.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignInScreenState extends State<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); // Key for form validation
   bool _isPasswordVisible = false;
 
@@ -24,16 +23,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _usernameController.dispose();
     super.dispose();
   }
 
-  // Function to handle Firebase sign-up
-  Future<void> _signUp() async {
-    // Validate the form before attempting to sign up
+  // Function to handle Firebase sign-in
+  Future<void> _signIn() async {
+    // Validate the form before attempting to sign in
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
@@ -43,14 +41,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
           context,
           MaterialPageRoute(builder: (context) => const WelcomeScreen()),
         );
+
         // The StreamBuilder in MyApp will handle the navigation to HomeScreen.
       } on FirebaseAuthException catch (e) {
         // Handle different Firebase errors
-        String message = "An error occurred. Please try again.";
-        if (e.code == 'weak-password') {
-          message = 'The password provided is too weak.';
-        } else if (e.code == 'email-already-in-use') {
-          message = 'The account already exists for that email.';
+        String message = "An error occurred. Please check your credentials.";
+        if (e.code == 'user-not-found') {
+          message = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          message = 'Wrong password provided for that user.';
         }
         _showErrorDialog(message);
       } catch (e) {
@@ -101,7 +100,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Sign Up Failed'),
+        title: const Text('Authentication Failed'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
@@ -127,56 +126,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 70),
+                const SizedBox(height: 80),
                 const Text(
-                  'Sign up',
+                  'Sign in',
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Create an account here',
+                  'Welcome back',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
-                const SizedBox(height: 20),
-                // Username input field
-                TextFormField(
-                  controller: _usernameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a username';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    prefixIcon: Icon(
-                      Icons.person_outline,
-                      color: Color.fromARGB(255, 220, 165, 0),
-                    ),
-                    fillColor: Colors.white,
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors
-                            .grey
-                            .shade300, // Color for the bottom border line
-                        width: 1.5,
-                      ),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade300,
-                        width: 1.5,
-                      ),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade300,
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
                 // Email input field
                 TextFormField(
                   controller: _emailController,
@@ -193,11 +153,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                   decoration: InputDecoration(
                     labelText: 'Email address',
+                    fillColor: Colors.white,
                     prefixIcon: Icon(
                       Icons.email_outlined,
                       color: Color.fromARGB(255, 220, 165, 0),
                     ),
-                    fillColor: Colors.white,
                     border: UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: Colors
@@ -228,9 +188,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters long';
                     }
                     return null;
                   },
@@ -276,23 +233,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                // Terms of Use text
-                const Text(
-                  'By signing up you agree with our Terms of Use',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                const SizedBox(height: 20),
+                // "Forgot Password?" link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: const Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 40),
-                // Sign-up button
+                // Sign-in button
                 Align(
                   alignment: Alignment.centerRight,
                   child: SizedBox(
                     width: 60,
                     height: 60,
                     child: RawMaterialButton(
-                      onPressed: _signUp,
-                      fillColor: const Color.fromARGB(255, 220, 165, 0),
                       shape: CircleBorder(),
+                      onPressed: _signIn,
+                      fillColor: const Color.fromARGB(255, 220, 165, 0),
                       child: const Icon(
                         Icons.arrow_forward,
                         color: Colors.white,
@@ -300,7 +267,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 Row(
                   children: [
                     Expanded(child: Divider()),
@@ -344,12 +311,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 const SizedBox(height: 50),
-                // "Already a member? Sign in" link
+                // "New member? Sign up" link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Already a member? ",
+                      "New member? ",
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                     GestureDetector(
@@ -357,12 +324,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SignInScreen(),
+                            builder: (context) => const SignUpScreen(),
                           ),
                         );
                       },
                       child: const Text(
-                        'Sign in',
+                        'Sign up',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,

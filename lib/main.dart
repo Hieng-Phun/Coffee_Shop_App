@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:testing/screen/home_screen.dart';
-import 'package:testing/screen/onboarding_screen.dart';
+import 'package:testing/screen/main/home_screen.dart';
+import 'package:testing/screen/main/onboarding_screen.dart';
 // NOTE: Make sure you have run `flutterfire configure` to generate this file.
 import 'firebase_options.dart';
 
