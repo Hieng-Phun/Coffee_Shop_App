@@ -18,6 +18,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); // Key for form validation
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -30,6 +31,9 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> _signIn() async {
     // Validate the form before attempting to sign in
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
@@ -44,21 +48,30 @@ class _SignInScreenState extends State<SignInScreen> {
 
         // The StreamBuilder in MyApp will handle the navigation to HomeScreen.
       } on FirebaseAuthException catch (e) {
-        // Handle different Firebase errors
-        String message = "An error occurred. Please check your credentials.";
+        // Handle specific Firebase Auth exceptions.
+        String errorMessage;
         if (e.code == 'user-not-found') {
-          message = 'No user found for that email.';
+          errorMessage = 'No user found for that email.';
         } else if (e.code == 'wrong-password') {
-          message = 'Wrong password provided for that user.';
+          errorMessage = 'Wrong password provided for that user.';
+        } else {
+          errorMessage = 'An error occurred: ${e.message}';
         }
-        _showErrorDialog(message);
-      } catch (e) {
-        _showErrorDialog('An unexpected error occurred: $e');
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
 
   Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       // Begin interactive Google Sign-In process
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -87,31 +100,14 @@ class _SignInScreenState extends State<SignInScreen> {
       );
       // The StreamBuilder in MyApp will handle the navigation to HomeScreen.
     } on FirebaseAuthException catch (e) {
-      // Handle Firebase authentication errors
-      _showErrorDialog("Google Sign-In Failed: ${e.message}");
-    } catch (e) {
-      // Handle other unexpected errors
-      _showErrorDialog("An unexpected error occurred: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in with Google: ${e.message}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-  }
-
-  // Helper function to show an error dialog
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Authentication Failed'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -253,17 +249,23 @@ class _SignInScreenState extends State<SignInScreen> {
                 // Sign-in button
                 Align(
                   alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: RawMaterialButton(
-                      shape: CircleBorder(),
-                      onPressed: _signIn,
-                      fillColor: const Color.fromARGB(255, 220, 165, 0),
-                      child: const Icon(
-                        Icons.arrow_forward,
-                        color: Colors.white,
-                      ),
+                  child: Center(
+                    child: SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              color: Color(0xFFE5B800),
+                            )
+                          : RawMaterialButton(
+                              shape: CircleBorder(),
+                              onPressed: _signIn,
+                              fillColor: const Color.fromARGB(255, 220, 165, 0),
+                              child: const Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -284,7 +286,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _signInWithGoogle,
+                      onPressed: _isLoading ? null : _signInWithGoogle,
                       icon: Image.network(
                         "https://img.icons8.com/color/48/000000/google-logo.png",
                         height: 24.0,
