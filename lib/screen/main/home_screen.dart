@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Welcome, $email!',
+                'Welcome, $email',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 24,
