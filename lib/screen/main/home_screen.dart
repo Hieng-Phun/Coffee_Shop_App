@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:testing/screen/auth/signin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? selectedLocation;
+
+  const HomeScreen({
+    super.key,
+    this.selectedLocation, // This is the new parameter
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -24,6 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final email = user?.email ?? 'user';
+    // Display the selected location if it is not null, otherwise show a default message.
+    final locationText = widget.selectedLocation != null
+        ? 'Your selected location is ${widget.selectedLocation}'
+        : 'No location selected';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -34,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.pop(context);
           },
         ),
-        backgroundColor: Color.fromARGB(255, 220, 165, 0),
+        backgroundColor: const Color.fromARGB(255, 220, 165, 0),
         title: const Text(
           'Home Screen',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -61,10 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'You are successfully signed in.',
+              Text(
+                locationText,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 20),
               // Log out button

@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:testing/screen/main/home_screen.dart';
 // The main function where the app starts.
 
-// A placeholder screen for the menu.
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
 
@@ -66,8 +65,8 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE5B800),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE5B800),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
@@ -99,14 +98,16 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                             onTap: () {
                               setState(() {
                                 _selectedStore = location;
-                                Navigator.push(
-                                  // ignore: use_build_context_synchronously
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HomeScreen(),
-                                  ),
-                                );
                               });
+                              // I've updated the navigation to pass the selected location to HomeScreen.
+                              Navigator.push(
+                                // ignore: use_build_context_synchronously
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      HomeScreen(selectedLocation: location),
+                                ),
+                              );
                             },
                           );
                         },
