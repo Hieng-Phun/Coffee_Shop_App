@@ -1,0 +1,14 @@
+{
+  "@@locale": "km",
+  "welcomeMessage": "សូមស្វាគមន៍!",
+  "selectCoffeeTitle": "ជ្រើសរើសកាហ្វេរបស់អ្នក",
+  "changeLanguageTitle": "ប្តូរភាសា",
+  "languageEnglish": "ភាសាអង់គ្លេស",
+  "languageKhmer": "ភាសាខ្មែរ",
+  "americanoName": "អាមេរិកាណូ",
+  "cappuccinoName": "កាប៉ូឆីណូ",
+  "latteName": "ឡាតេ",
+  "flatWhiteName": "ហ្វ្លេត វ៉ៃត៍",
+  "rafName": "រ៉ាហ្វ",
+  "espressoName": "អេសប្រេសសូ"
+}

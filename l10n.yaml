@@ -1,0 +1,10 @@
+# l10n.yaml
+
+# The path to your arb files
+arb-dir: lib/l10n
+
+# The output directory for the generated localization file
+template-arb-file: app_en.arb
+
+# The output filename for the generated localization file
+output-localization-file: app_localizations.dart

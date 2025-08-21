@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:testing/screen/main/home_screen.dart';
+import 'package:testing/screen/home/home_menu_screen.dart';
 import 'package:testing/screen/main/onboarding_screen.dart';
 // NOTE: Make sure you have run `flutterfire configure` to generate this file.
 import 'firebase_options.dart';
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
               return const OnboardingScreen();
             }
             // User is logged in, show the Home screen
-            return const HomeScreen();
+            return const HomeMenuScreen();
           }
           // Show a loading indicator while checking the authentication state
           return const Scaffold(

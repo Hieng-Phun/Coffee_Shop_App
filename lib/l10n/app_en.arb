@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "welcomeMessage": "Welcome!",
+  "selectCoffeeTitle": "Select your coffee",
+  "changeLanguageTitle": "Change Language",
+  "languageEnglish": "English",
+  "languageKhmer": "Khmer",
+  "americanoName": "Americano",
+  "cappuccinoName": "Cappuccino",
+  "latteName": "Latte",
+  "flatWhiteName": "Flat White",
+  "rafName": "Raf",
+  "espressoName": "Espresso"
+}

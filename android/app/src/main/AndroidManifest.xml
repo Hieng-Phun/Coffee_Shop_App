@@ -4,7 +4,7 @@
     <application
         android:label="Coffee Shop"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
 
         <meta-data
             android:name="com.google.android.gms.auth.api.web_client_id"

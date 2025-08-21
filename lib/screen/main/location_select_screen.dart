@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:testing/screen/main/home_screen.dart';
+import 'package:testing/screen/home/home_menu_screen.dart';
 // The main function where the app starts.
 
 class MenuScreen extends StatelessWidget {
@@ -100,12 +100,13 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                 _selectedStore = location;
                               });
                               // I've updated the navigation to pass the selected location to HomeScreen.
+                              // The correct way to pass the selected location to HomeMenuScreen.
                               Navigator.push(
-                                // ignore: use_build_context_synchronously
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      HomeScreen(selectedLocation: location),
+                                  builder: (context) => HomeMenuScreen(
+                                    selectedLocation: location,
+                                  ),
                                 ),
                               );
                             },
